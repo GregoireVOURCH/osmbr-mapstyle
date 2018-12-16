@@ -88,8 +88,8 @@ Layer:
         FROM
           planet_osm_polygon
         WHERE
-          landuse = 'forest' AND way_area > 5000000)
-        AS data
+          landuse = 'forest' AND way_area > 5000000
+        ) AS big_forest
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
@@ -108,8 +108,8 @@ Layer:
         FROM
           planet_osm_polygon
         WHERE
-          way_area > 100000)
-        AS data
+          way_area > 100000
+        ) AS landcover_gen0
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
@@ -128,8 +128,8 @@ Layer:
         FROM
           planet_osm_polygon
         WHERE
-          way_area > 10000)
-        AS data
+          way_area > 10000
+        ) AS landcover_gen1
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
@@ -146,15 +146,29 @@ Layer:
         (SELECT
           osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
         FROM
-          planet_osm_polygon)
-        AS data
+          planet_osm_polygon
+        ) AS landcover
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
       minzoom: 12
 
 
-
+  - id: aeroway
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, aeroway AS type
+        FROM
+          planet_osm_line
+        WHERE
+          aeroway IN ('apron', 'runway', 'taxiway')
+        ) AS aeroway
+    properties:
+      minzoom: 10
 
 
 
