@@ -1,0 +1,74 @@
+name: OpenStreetMap e Brezhoneg
+description: 'A general-purpose OpenStreetMap mapnik style, focused on minored langages, in CartoCSS'
+attribution: 'CC-BY-SA OSM-BZH'
+scale: 1
+metatile: 2
+bounds: &world
+  - -180
+  - -85
+  - 180
+  - 85
+center:
+  - -2.96
+  - 48.03
+  - 8
+format: 'png'
+interactivity: false
+minzoom: 4
+maxzoom: 18
+srs: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+
+
+_parts:
+  # default values used by layers
+  extents: &extents
+    extent: *world
+    srs-name: "3857"
+    srs: "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+    class: ''
+    status: 'on'
+
+  extents84: &extents84
+    extent: *world
+    srs-name: "WGS84"
+    srs: "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+  osm2pgsql: &osm2pgsql
+    type: "postgis"
+    dbname: "osm"
+    key_field: ""
+    geometry_field: "way"
+    extent: "-20037508,-20037508,20037508,20037508"
+    host: db.openstreetmap.world
+    user: osmbr
+    password: m4d31nbr31zh
+    asynchronous_request: 'true'
+    max_async_connection: '4'
+
+
+# stylesheets
+Stylesheet:
+  - palette.mss
+  - base.mss
+  - landcover.mss
+  - admin.mss
+  - roads.mss
+  - labels.mss
+
+
+# the layers
+Layer:
+
+  - id: land_low
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      file: /data/styles/data/simplified-land-polygons-complete-3857/simplified_land_polygons.shp
+      type: shape
+    properties:
+      maxzoom: 10
+
+
+
+
+
