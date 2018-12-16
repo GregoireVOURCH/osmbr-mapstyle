@@ -1,15 +1,43 @@
 
 -- big_forest
-SELECT osm_id, way, way_area AS area  FROM planet_osm_polygon  WHERE landuse = 'forest' AND way_area > 100000
+SELECT
+  osm_id, way, way_area AS area
+FROM
+  planet_osm_polygon
+WHERE
+  landuse = 'forest' AND way_area > 100000
 
 -- landuse_gen0
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type  FROM planet_osm_polygon  WHERE way_area > 100000
+SELECT
+  osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+FROM
+  planet_osm_polygon
+WHERE
+  way_area > 100000
 
 -- landuse_gen1
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type  FROM planet_osm_polygon  WHERE way_area > 10000
+SELECT
+  osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+FROM
+  planet_osm_polygon
+WHERE
+  way_area > 10000
 
--- landuse
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type  FROM planet_osm_polygon
+
+-- lancover
+SELECT
+  osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+FROM
+  planet_osm_polygon
+
+
+-- aeroway
+SELECT
+  osm_id, way, aeroway AS type
+FROM
+  planet_osm_line
+WHERE
+  aeroway IN ('apron', 'runway', 'taxiway')
 
 
 -- waterarea_low
@@ -49,32 +77,14 @@ WHERE
   OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text
   OR leisure = 'swimming_pool'::text
 
-SELECT osm_id, way, way_area AS area, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') || COALESCE(landuse, '') || COALESCE("natural", '') as type FROM planet_osm_polygon WHERE waterway IN ('riverbank') OR (landuse = ANY (ARRAY['reservoir'::text, 'water'::text, 'basin'::text, 'salt_pond'::text])) OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text OR leisure = 'swimming_pool'::text
-
-
--- waterarea_med
-SELECT
-  osm_id,
-  way,
-  "natural" AS type,
-  way_area AS area
-FROM planet_osm_polygon
-WHERE ("natural" IN ('water', 'pond') OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream')) 
-  AND way_area > 50000
-
-SELECT osm_id, way, "natural" AS type, way_area AS area FROM planet_osm_polygon WHERE ("natural" IN ('water', 'pond') OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream')) AND way_area > 50000
-
-
--- waterarea_high
-SELECT osm_id, way, "natural" AS type, way_area AS area FROM planet_osm_polygon WHERE ("natural" IN ('water', 'pond') OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream')) AND way_area > 75000
-
 
 -- waterway_low
 SELECT
   osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
 FROM
   planet_osm_line
-WHERE waterway in ('river','canal')
+WHERE
+  waterway in ('river','canal')
 ORDER BY z_order
 
 
@@ -86,6 +96,7 @@ FROM
 WHERE waterway in ('stream','river','canal')
 ORDER BY z_order
 
+
 -- waterway_high
 SELECT
   osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
@@ -93,8 +104,17 @@ FROM
   planet_osm_line
 WHERE
   waterway in ('weir','river','canal','derelict_canal','stream','drain','ditch','wadi')
-  ORDER BY z_order
+ORDER BY z_order
 
+
+-- buildings
+SELECT
+  osm_id, way, 'building' AS type
+FROM
+  planet_osm_polygon
+WHERE
+  building NOT IN ('', '0','false', 'no')
+ORDER BY z_order, way_area DESC
 
 
 -- roads_high
@@ -116,8 +136,6 @@ WHERE
 FROM planet_osm_line 
 WHERE (highway IS NOT NULL OR railway IS NOT NULL) AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order 
 
-SELECT osm_id, way, COALESCE(highway, railway) AS type, 0 AS tunnel, 0 AS bridge, access, 'fill' AS render, CASE WHEN highway IN ('motorway', 'trunk') THEN 'motorway' WHEN highway IN ('primary', 'secondary') THEN 'mainroad' WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad' WHEN highway IN ('service', 'track') THEN 'service' WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto' WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway' ELSE 'other' END AS stylegroup FROM planet_osm_line WHERE (highway IS NOT NULL OR railway IS NOT NULL) AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
-
 
 -- roads_med
 SELECT
@@ -135,9 +153,6 @@ WHERE
   highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link')
   OR railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram')
   AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
-
-
-SELECT osm_id, way, COALESCE(highway, railway) AS type, 0 AS tunnel, 0 AS bridge, access, 'fill' AS render, CASE WHEN highway IN ('motorway', 'trunk') THEN 'motorway' WHEN highway IN ('primary', 'secondary') THEN 'mainroad' WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link') THEN 'minorroad' WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway' ELSE 'other' END AS stylegroup FROM planet_osm_line WHERE highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link') OR railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
 
 
 -- roads_low
@@ -161,8 +176,6 @@ WHERE
   AND (bridge IS NULL OR bridge = 'no') 
 ORDER BY z_order
 
-SELECT osm_id, way, COALESCE(highway, railway) AS type, 0 AS tunnel, 0 AS bridge, access, 'fill' AS render, CASE WHEN highway IN ('motorway', 'trunk') THEN 'motorway' WHEN highway IN ('primary') THEN 'mainroad' WHEN railway IN ('rail') THEN 'railway' ELSE 'other' END AS stylegroup FROM planet_osm_line WHERE highway IN ('motorway', 'trunk', 'primary') OR railway IN ('rail') AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
-
 
 -- rail_low
 SELECT
@@ -175,9 +188,6 @@ SELECT
 FROM planet_osm_line 
 WHERE
   railway IN ('rail') AND tags->'usage'::text IN ('main', 'branch')
-
-SELECT osm_id, ST_Simplify(way, 10) AS way, COALESCE(railway) AS type, tags->'usage'::text AS usage, tunnel, bridge FROM planet_osm_line  WHERE railway IN ('rail') AND tags->'usage'::text IN ('main', 'branch')
-
 
 
 
@@ -205,44 +215,8 @@ SELECT
   (  SELECT *, '1_outline' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '2_line' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '3_inline' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')
   ) AS bridges ORDER BY layer ASC, render ASC
 
-SELECT way, COALESCE(highway, railway) AS type, 1 AS bridge, access, render, layer, 0 as tunnel, CASE WHEN highway IN ('motorway', 'trunk') THEN 'motorway'  WHEN highway IN ('primary', 'secondary') THEN 'mainroad'  WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'  WHEN highway IN ('service', 'track') THEN 'service'  WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'  WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'  ELSE 'other' END AS stylegroup FROM (  SELECT *, '1_outline' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '2_line' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '3_inline' AS render FROM planet_osm_line  WHERE bridge NOT IN ('', '0', 'no')) AS bridges ORDER BY layer ASC, render ASC
 
 
--- buildings
-SELECT
-  osm_id, way, 'building' AS type
-FROM
-  planet_osm_polygon
-WHERE
-  building NOT IN ('', '0','false', 'no')
-ORDER BY z_order, way_area DESC
-
-SELECT osm_id, way, 'building' AS type  FROM planet_osm_polygon  WHERE building NOT IN ('', '0','false', 'no')
-
-
-
--- landuse_gen0
-SELECT
-  osm_id,
-  ST_SimplifyPreserveTopology(geometry, 50) AS way,
-  way_area AS area,
-  COALESCE(landuse, leisure, \"natural\", highway, amenity, tourism) AS type
-FROM planet_osm_polygon
-WHERE way_area > 100000
---ORDER BY way_area DESC
-
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, \"natural\", highway, amenity, tourism) AS type  FROM planet_osm_polygon  WHERE way_area > 100000
-
-
--- landuse_gen1
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, \"natural\", highway, amenity, tourism) AS type  FROM planet_osm_polygon  WHERE way_area > 10000
-
--- landuse
-SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, \"natural\", highway, amenity, tourism) AS type  FROM planet_osm_polygon
-
-
--- aeroway
-SELECT osm_id, way, aeroway AS type  FROM planet_osm_line  WHERE aeroway IN ('apron', 'runway', 'taxiway')
 
 
 -- admin_boundaries
