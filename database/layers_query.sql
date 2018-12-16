@@ -12,19 +12,42 @@ SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", high
 SELECT osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type  FROM planet_osm_polygon
 
 
+-- waterarea_low
+SELECT
+  osm_id, way, "natural" AS type, way_area AS area
+FROM
+  planet_osm_polygon 
+WHERE
+  ("natural" IN ('water', 'pond')
+  OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
+  AND way_area > 75000
+
+
+-- waterarea_med
+SELECT
+  osm_id, way, "natural" AS type, way_area AS area
+FROM
+  planet_osm_polygon 
+WHERE
+  ("natural" IN ('water', 'pond')
+  OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
+  AND way_area > 50000
+
+
 -- waterarea
 SELECT 
-    osm_id,
-    way,
-    way_area AS area,
-    COALESCE(tags -> 'name:br'::text) as name,
-    COALESCE(waterway, '') || COALESCE(landuse, '') || COALESCE("natural", '') as type
-FROM planet_osm_polygon
+  osm_id,
+  way,
+  way_area AS area,
+  COALESCE(tags -> 'name:br'::text) as name,
+  COALESCE(waterway, '') || COALESCE(landuse, '') || COALESCE("natural", '') as type
+FROM
+  planet_osm_polygon
 WHERE 
-    waterway IN ('riverbank')
-    OR (landuse = ANY (ARRAY['reservoir'::text, 'water'::text, 'basin'::text, 'salt_pond'::text]))
-    OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text
-    OR leisure = 'swimming_pool'::text
+  waterway IN ('riverbank')
+  OR (landuse = ANY (ARRAY['reservoir'::text, 'water'::text, 'basin'::text, 'salt_pond'::text]))
+  OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text
+  OR leisure = 'swimming_pool'::text
 
 SELECT osm_id, way, way_area AS area, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') || COALESCE(landuse, '') || COALESCE("natural", '') as type FROM planet_osm_polygon WHERE waterway IN ('riverbank') OR (landuse = ANY (ARRAY['reservoir'::text, 'water'::text, 'basin'::text, 'salt_pond'::text])) OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text OR leisure = 'swimming_pool'::text
 
@@ -46,18 +69,31 @@ SELECT osm_id, way, "natural" AS type, way_area AS area FROM planet_osm_polygon 
 SELECT osm_id, way, "natural" AS type, way_area AS area FROM planet_osm_polygon WHERE ("natural" IN ('water', 'pond') OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream')) AND way_area > 75000
 
 
--- waterway_high
-SELECT osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way FROM planet_osm_line WHERE waterway in ('weir','river','canal','derelict_canal','stream','drain','ditch','wadi') ORDER BY z_order
+-- waterway_low
+SELECT
+  osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+FROM
+  planet_osm_line
+WHERE waterway in ('river','canal')
+ORDER BY z_order
 
 
 -- waterway_med
-SELECT osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way FROM planet_osm_line WHERE waterway in ('stream','river','canal') ORDER BY z_order
+SELECT
+  osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+FROM
+  planet_osm_line
+WHERE waterway in ('stream','river','canal')
+ORDER BY z_order
 
-
--- waterway_low
-SELECT osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way FROM planet_osm_line WHERE waterway in ('river','canal') ORDER BY z_order
-
-
+-- waterway_high
+SELECT
+  osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+FROM
+  planet_osm_line
+WHERE
+  waterway in ('weir','river','canal','derelict_canal','stream','drain','ditch','wadi')
+  ORDER BY z_order
 
 
 

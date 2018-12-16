@@ -171,7 +171,121 @@ Layer:
       minzoom: 10
 
 
+  - id: waterarea_low
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, "natural" AS type, way_area AS area
+        FROM
+          planet_osm_polygon 
+        WHERE
+          ("natural" IN ('water', 'pond')
+          OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
+          AND way_area > 75000
+          ) AS waterarea_low
+    properties:
+      minzoom: 7
+      maxzoom: 10
 
+  - id: waterarea_med
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, "natural" AS type, way_area AS area
+        FROM
+          planet_osm_polygon 
+        WHERE
+          ("natural" IN ('water', 'pond')
+          OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
+          AND way_area > 50000
+          ) AS waterarea_med
+    properties:
+      minzoom: 10
+      maxzoom: 12
+
+  - id: waterarea
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT 
+          osm_id,
+          way,
+          way_area AS area,
+          COALESCE(tags -> 'name:br'::text) as name,
+          COALESCE(waterway, '') || COALESCE(landuse, '') || COALESCE("natural", '') as type
+        FROM
+          planet_osm_polygon
+        WHERE 
+          waterway IN ('riverbank')
+          OR (landuse = ANY (ARRAY['reservoir'::text, 'water'::text, 'basin'::text, 'salt_pond'::text]))
+          OR ("natural" = ANY (ARRAY['lake'::text, 'water'::text])) OR amenity = 'swimming_pool'::text
+          OR leisure = 'swimming_pool'::text
+          ) AS waterarea
+    properties:
+      minzoom: 12
+
+
+  - id: waterway_low
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+        FROM
+          planet_osm_line
+        WHERE
+          waterway in ('river','canal')
+        ORDER BY z_order
+          ) AS waterway_low
+    properties:
+      minzoom: 8
+      maxzoom: 12
+
+
+  - id: waterway_med
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+        FROM
+          planet_osm_line
+        WHERE
+          waterway in ('stream','river','canal')
+        ORDER BY z_order
+          ) AS waterway_med
+    properties:
+      minzoom: 13
+      maxzoom: 14
+
+  - id: waterway_high
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, COALESCE(tags -> 'name:br'::text) as name, COALESCE(waterway, '') as type, way
+        FROM
+          planet_osm_line
+        WHERE
+          waterway in ('weir','river','canal','derelict_canal','stream','drain','ditch','wadi')
+        ORDER BY z_order
+          ) AS waterway_high
+    properties:
+      minzoom: 15
 
 
 
