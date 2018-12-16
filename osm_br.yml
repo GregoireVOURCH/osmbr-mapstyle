@@ -69,6 +69,96 @@ Layer:
       maxzoom: 10
 
 
+  - id: land_high
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      file: /data/styles/data/land-polygons-split-3857/land_polygons.shp
+      type: shape
+
+
+  - id: big_forest
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, way_area AS area
+        FROM
+          planet_osm_polygon
+        WHERE
+          landuse = 'forest' AND way_area > 5000000)
+        AS data
+    properties:
+      #polygon-simplify: 10
+      #polygon-simplify-algorithm: douglas-peucker
+      minzoom: 6
+      maxzoom: 9
+
+
+  - id: landcover_gen0
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+        FROM
+          planet_osm_polygon
+        WHERE
+          way_area > 100000)
+        AS data
+    properties:
+      #polygon-simplify: 10
+      #polygon-simplify-algorithm: douglas-peucker
+      minzoom: 9
+      maxzoom: 10
+
+
+  - id: landcover_gen1
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+        FROM
+          planet_osm_polygon
+        WHERE
+          way_area > 10000)
+        AS data
+    properties:
+      #polygon-simplify: 10
+      #polygon-simplify-algorithm: douglas-peucker
+      minzoom: 11
+      maxzoom: 12
+
+
+  - id: landcover
+    geometry: polygon
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id, way, way_area AS area, COALESCE(landuse, leisure, "natural", highway, amenity, tourism) AS type
+        FROM
+          planet_osm_polygon)
+        AS data
+    properties:
+      #polygon-simplify: 10
+      #polygon-simplify-algorithm: douglas-peucker
+      minzoom: 12
+
+
+
+
+
+
+
 
 
 
