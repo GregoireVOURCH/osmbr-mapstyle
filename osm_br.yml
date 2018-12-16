@@ -90,6 +90,7 @@ Layer:
         WHERE
           landuse = 'forest' AND way_area > 5000000
         ) AS big_forest
+    simplify_geometries: 'true'
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
@@ -110,6 +111,7 @@ Layer:
         WHERE
           way_area > 100000
         ) AS landcover_gen0
+    simplify_geometries: 'true'
     properties:
       #polygon-simplify: 10
       #polygon-simplify-algorithm: douglas-peucker
@@ -130,9 +132,8 @@ Layer:
         WHERE
           way_area > 10000
         ) AS landcover_gen1
+    simplify_geometries: 'true'
     properties:
-      #polygon-simplify: 10
-      #polygon-simplify-algorithm: douglas-peucker
       minzoom: 11
       maxzoom: 12
 
@@ -148,9 +149,8 @@ Layer:
         FROM
           planet_osm_polygon
         ) AS landcover
+    simplify_geometries: 'true'
     properties:
-      #polygon-simplify: 10
-      #polygon-simplify-algorithm: douglas-peucker
       minzoom: 12
 
 
@@ -186,6 +186,7 @@ Layer:
           OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
           AND way_area > 75000
           ) AS waterarea_low
+    simplify_geometries: 'true'
     properties:
       minzoom: 7
       maxzoom: 10
@@ -205,6 +206,7 @@ Layer:
           OR waterway IN ('basin', 'canal', 'mill_pond', 'pond', 'riverbank', 'stream'))
           AND way_area > 50000
           ) AS waterarea_med
+    simplify_geometries: 'true'
     properties:
       minzoom: 10
       maxzoom: 12
@@ -247,6 +249,7 @@ Layer:
           waterway in ('river','canal')
         ORDER BY z_order
           ) AS waterway_low
+    simplify_geometries: 'true'
     properties:
       minzoom: 8
       maxzoom: 12
@@ -266,6 +269,7 @@ Layer:
           waterway in ('stream','river','canal')
         ORDER BY z_order
           ) AS waterway_med
+    simplify_geometries: 'true'
     properties:
       minzoom: 13
       maxzoom: 14
