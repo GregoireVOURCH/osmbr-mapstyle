@@ -310,3 +310,28 @@ Layer:
       minzoom: 13
 
 
+  - id: rail_low
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id,
+          way,
+          COALESCE(railway) AS type,
+          tags->'usage'::text AS usage,
+          tunnel,
+          bridge
+        FROM
+          planet_osm_line 
+        WHERE
+          railway IN ('rail') AND tags->'usage'::text IN ('main', 'branch')
+        ) AS rail_low
+    simplify_geometries: 'true'
+    properties:
+      minzoom: 6
+      maxzoom: 8
+
+
+

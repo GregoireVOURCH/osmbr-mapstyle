@@ -185,7 +185,8 @@ SELECT
   tags->'usage'::text AS usage,
   tunnel,
   bridge
-FROM planet_osm_line 
+FROM
+  planet_osm_line 
 WHERE
   railway IN ('rail') AND tags->'usage'::text IN ('main', 'branch')
 
