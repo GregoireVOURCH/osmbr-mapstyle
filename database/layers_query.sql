@@ -210,12 +210,12 @@ SELECT way, COALESCE(highway, railway) AS type, 1 AS bridge, access, render, lay
 
 -- buildings
 SELECT
-  osm_id,
-  way,
-  'building' AS type
-FROM planet_osm_polygon
-WHERE building NOT IN ('', '0','false', 'no')
---ORDER BY ST_YMin(ST_Envelope(way)) DESC
+  osm_id, way, 'building' AS type
+FROM
+  planet_osm_polygon
+WHERE
+  building NOT IN ('', '0','false', 'no')
+ORDER BY z_order, way_area DESC
 
 SELECT osm_id, way, 'building' AS type  FROM planet_osm_polygon  WHERE building NOT IN ('', '0','false', 'no')
 
