@@ -335,11 +335,10 @@ SELECT
   COALESCE(highway, '') as type,
   COALESCE(tags -> 'name:br'::text,'') as name,
   way
-FROM planet_osm_line
+FROM
+  planet_osm_line
 WHERE
   highway IN ('primary', 'secondary', 'tertiary')
-
-SELECT osm_id, COALESCE(highway, '') as type, COALESCE(tags -> 'name:br'::text,'') as name, way FROM planet_osm_line WHERE highway IN ('primary', 'secondary', 'tertiary')
 
 
 -- minorroad_label
