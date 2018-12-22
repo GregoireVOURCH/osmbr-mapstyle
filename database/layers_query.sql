@@ -137,23 +137,6 @@ FROM planet_osm_line
 WHERE (highway IS NOT NULL OR railway IS NOT NULL) AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order 
 
 
--- roads_med
-SELECT
-  osm_id, way, COALESCE(highway, railway) AS type, 
-  0 AS tunnel, 0 AS bridge, access, 'fill' AS render, 
-  CASE 
-  WHEN highway IN ('motorway', 'trunk') THEN 'motorway' 
-  WHEN highway IN ('primary', 'secondary') THEN 'mainroad' 
-  WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link') THEN 'minorroad'  
-  WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
-  ELSE 'other'
-  END AS stylegroup 
-FROM planet_osm_line 
-WHERE
-  highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link')
-  OR railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram')
-  AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
-
 
 -- roads_low
 SELECT
@@ -177,6 +160,27 @@ WHERE
   AND (tunnel IS NULL OR tunnel = 'no') 
   AND (bridge IS NULL OR bridge = 'no') 
 ORDER BY z_order
+
+
+-- roads_med
+SELECT
+  osm_id,
+  way,
+  COALESCE(highway, railway) AS type, 
+  0 AS tunnel, 0 AS bridge, access, 'fill' AS render, 
+  CASE 
+  WHEN highway IN ('motorway', 'trunk') THEN 'motorway' 
+  WHEN highway IN ('primary', 'secondary') THEN 'mainroad' 
+  WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link') THEN 'minorroad'  
+  WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+  ELSE 'other'
+  END AS stylegroup 
+FROM planet_osm_line 
+WHERE
+  highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link')
+  OR railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram')
+  AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order
+
 
 
 -- rail_low
