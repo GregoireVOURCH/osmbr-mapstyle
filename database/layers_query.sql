@@ -365,10 +365,7 @@ SELECT
   way
 FROM planet_osm_point
 WHERE (tags -> 'name:br'::text IS NOT NULL)
-ORDER BY z_order ;
-
-SELECT osm_id, COALESCE(tags -> 'name:br'::text) as name, place as type, admin_level, COALESCE(tags->'is_capital'::text) as is_capital, z_order, way  FROM planet_osm_point  WHERE (tags -> 'name:br'::text IS NOT NULL) ORDER BY z_order
-
+ORDER BY z_order
 
 
 
