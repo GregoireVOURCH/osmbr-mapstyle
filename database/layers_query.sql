@@ -347,11 +347,10 @@ SELECT
   COALESCE(highway, '') as type,
   COALESCE(tags -> 'name:br'::text,'') as name,
   way
-FROM planet_osm_line
+FROM
+  planet_osm_line
 WHERE
   highway IN ('motorway','motorway_link','trunk','trunk_link','primary','primary_link','secondary','secondary_link','tertiary','tertiary_link','road','path','track','service','footway','bridleway','cycleway','steps','pedestrian','living_street','unclassified','residential','raceway')
-
-SELECT osm_id, COALESCE(highway, '') as type, COALESCE(tags -> 'name:br'::text,'') as name, way FROM planet_osm_line WHERE highway IN ('motorway','motorway_link','trunk','trunk_link','primary','primary_link','secondary','secondary_link','tertiary','tertiary_link','road','path','track','service','footway','bridleway','cycleway','steps','pedestrian','living_street','unclassified','residential','raceway')
 
 
 -- places
