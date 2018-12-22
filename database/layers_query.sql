@@ -193,7 +193,40 @@ WHERE
 
 
 -- tunnel
-SELECT osm_id, way, COALESCE(highway, railway) AS type, 0 AS bridge, access, render, layer, 1 as tunnel, CASE WHEN highway IN ('motorway', 'trunk') THEN 'motorway'  WHEN highway IN ('primary', 'secondary') THEN 'mainroad'  WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'  WHEN highway IN ('service', 'track') THEN 'service'  WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'  WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'  ELSE 'other' END AS stylegroup FROM (  SELECT *, '1_outline' AS render FROM planet_osm_line  WHERE tunnel NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '2_line' AS render FROM planet_osm_line  WHERE tunnel NOT IN ('', '0', 'no')  UNION ALL  SELECT *, '3_inline' AS render FROM planet_osm_line  WHERE tunnel NOT IN ('', '0', 'no')) AS tunnels ORDER BY layer ASC, render ASC
+SELECT
+  osm_id,
+  way,
+  COALESCE(highway, railway) AS type,
+  0 AS bridge,
+  access,
+  render,
+  layer,
+  1 as tunnel,
+  CASE
+    WHEN highway IN ('motorway', 'trunk') THEN 'motorway'
+    WHEN highway IN ('primary', 'secondary') THEN 'mainroad'
+    WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'
+    WHEN highway IN ('service', 'track') THEN 'service'
+    WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'
+    WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'
+  ELSE
+    'other'
+  END AS stylegroup
+FROM
+  (
+      SELECT *, '1_outline' AS render
+      FROM planet_osm_line 
+      WHERE tunnel NOT IN ('', '0', 'no')
+    UNION ALL
+      SELECT *, '2_line' AS render
+      FROM planet_osm_line
+      WHERE tunnel NOT IN ('', '0', 'no')
+    UNION ALL
+      SELECT *, '3_inline' AS render
+      FROM planet_osm_line
+      WHERE tunnel NOT IN ('', '0', 'no')
+  ) AS tunnels
+ORDER BY layer ASC, render ASC
 
 
 
