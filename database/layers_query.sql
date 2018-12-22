@@ -322,10 +322,11 @@ SELECT
   oneway,
   CHAR_LENGTH(ref) AS reflen,
   way
-FROM planet_osm_line
-WHERE highway IN ('motorway', 'trunk') AND (COALESCE(tags -> 'name:br'::text,'') IS NOT NULL OR ref IS NOT NULL)
-
-SELECT osm_id, COALESCE(highway, '') as type, COALESCE(tags -> 'name:br'::text,'') as name, ref, oneway, CHAR_LENGTH(ref) AS reflen, way FROM planet_osm_line WHERE highway IN ('motorway', 'trunk') AND (COALESCE(tags -> 'name:br'::text,'') IS NOT NULL OR ref IS NOT NULL)
+FROM
+  planet_osm_line
+WHERE
+  highway IN ('motorway', 'trunk')
+  AND (COALESCE(tags -> 'name:br'::text,'') IS NOT NULL OR ref IS NOT NULL)
 
 
 -- mainroad_label
