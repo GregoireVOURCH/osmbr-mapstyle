@@ -157,7 +157,9 @@ WHERE
 
 -- roads_low
 SELECT
-  osm_id, way, COALESCE(highway, railway) AS type, 
+  osm_id,
+  way,
+  COALESCE(highway, railway) AS type, 
   0 AS tunnel,
   0 AS bridge,
   access,
