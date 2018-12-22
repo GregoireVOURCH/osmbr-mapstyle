@@ -434,14 +434,86 @@ Layer:
         WHERE
           highway IN ('motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link')
           OR railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram')
-          AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no') ORDER BY z_order  ) AS roads_med
+          AND (tunnel IS NULL OR tunnel = 'no') AND (bridge IS NULL OR bridge = 'no')
+        ORDER BY z_order  ) AS roads_med
     simplify_geometries: 'true'
     properties:
       minzoom: 9
       maxzoom: 10
 
 
+  - id: roads_high
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          osm_id,
+          way,
+          COALESCE(highway, railway) AS type, 
+          0 AS tunnel,
+          0 AS bridge,
+          access,
+          'fill' AS render, 
+          CASE 
+              WHEN highway IN ('motorway', 'trunk') THEN 'motorway' 
+              WHEN highway IN ('primary', 'secondary') THEN 'mainroad' 
+              WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad' 
+              WHEN highway IN ('service', 'track') THEN 'service' 
+              WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto' 
+              WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway' 
+              ELSE 'other' 
+          END AS stylegroup 
+        FROM planet_osm_line 
+        WHERE
+          (highway IS NOT NULL OR railway IS NOT NULL)
+          AND (tunnel IS NULL OR tunnel = 'no')
+          AND (bridge IS NULL OR bridge = 'no')
+        ORDER BY z_order   ) AS roads_high
+    simplify_geometries: 'true'
+    properties:
+      minzoom: 11
 
+
+  - id: bridge
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+          way,
+          COALESCE(highway, railway) AS type,
+          1 AS bridge, access, render, layer,
+          0 as tunnel,
+          CASE
+            WHEN highway IN ('motorway', 'trunk') THEN 'motorway'  
+            WHEN highway IN ('primary', 'secondary') THEN 'mainroad'  
+            WHEN highway IN ('motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'road', 'living_street') THEN 'minorroad'  
+            WHEN highway IN ('service', 'track') THEN 'service'  
+            WHEN highway IN ('path', 'cycleway', 'footway', 'pedestrian', 'steps', 'bridleway') THEN 'noauto'  
+            WHEN railway IN ('light_rail', 'subway', 'narrow_gauge', 'rail', 'tram') THEN 'railway'  
+          ELSE 'other'
+          END AS stylegroup
+          FROM 
+          (
+              SELECT *, '1_outline' AS render
+              FROM planet_osm_line 
+              WHERE bridge NOT IN ('', '0', 'no')
+            UNION ALL
+              SELECT *, '2_line' AS render
+              FROM planet_osm_line
+              WHERE bridge NOT IN ('', '0', 'no')
+            UNION ALL
+              SELECT *, '3_inline' AS render
+              FROM planet_osm_line
+              WHERE bridge NOT IN ('', '0', 'no')
+          ) AS bridges
+        ORDER BY layer ASC, render ASC   ) AS bridge
+    simplify_geometries: 'true'
+    properties:
+      minzoom: 11
 
 
 
