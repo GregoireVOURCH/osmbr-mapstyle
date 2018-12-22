@@ -275,23 +275,42 @@ ORDER BY layer ASC, render ASC
 
 
 
-
-
 -- admin_boundaries
 SELECT
-  row_number() over() AS id,
-  b.way::geometry(LineString,3857) AS way,
+  ST_Simplify(b.way,!pixel_width!/4) as way,
   admin_level::integer AS admin_level,
   coalesce(b.tags->'maritime','no') AS maritime,
   count(r.*)::integer AS nb,
   string_agg(id::text,',') AS rels
 FROM planet_osm_roads b
-LEFT JOIN planet_osm_rels r ON (r.parts @> ARRAY[osm_id] AND r.members @> ARRAY['w' || osm_id] AND regexp_replace(r.tags::text,'[{}]',',') ~ format('(,admin_level,%s.*,boundary,administrative|,boundary,administrative.*,admin_level,%s,)',admin_level,admin_level)) 
-WHERE boundary='administrative' AND admin_level IS NOT NULL
+LEFT JOIN planet_osm_rels r ON (r.parts @> ARRAY[osm_id]
+  AND r.members @> ARRAY['w' || osm_id]
+  AND regexp_replace(r.tags::text,'[{}]',',') ~ format('(,admin_level,%s.*,boundary,administrative|,boundary,administrative.*,admin_level,%s,)',admin_level,admin_level)) 
+WHERE
+  way && !bbox!
+  AND boundary='administrative'
+  AND admin_level IS NOT NULL
 GROUP BY 1,2,3
 ORDER BY admin_level DESC
 
-SELECT  b.way::geometry(LineString,3857) AS way, admin_level::integer AS admin_level, coalesce(b.tags->'maritime','no') AS maritime, count(r.*)::integer AS nb, string_agg(id::text,',') AS rels  FROM planet_osm_roads b  LEFT JOIN planet_osm_rels r ON (r.parts @> ARRAY[osm_id] AND r.members @> ARRAY['w' || osm_id] AND regexp_replace(r.tags::text,'[{}]',',') ~ format('(,admin_level,%s.*,boundary,administrative|,boundary,administrative.*,admin_level,%s,)',admin_level,admin_level))  WHERE boundary='administrative' AND admin_level IS NOT NULL  GROUP BY 1,2,3  ORDER BY admin_level DESC
+-- admin_boundaries FR style
+SELECT
+  ST_Simplify(way,!pixel_width!/4) as way,
+  admin_level,
+  coalesce(b.tags->'maritime','no') as maritime,
+  count(r.*) as nb
+FROM  planet_osm_roads b
+LEFT JOIN planet_osm_rels r ON (r.parts @> ARRAY[osm_id]
+  AND r.members @> ARRAY['w' || osm_id]
+  AND regexp_replace(r.tags::text,'[{}]',',') ~ format(',admin_level,%s,',admin_level)
+  AND regexp_replace(r.tags::text,'[{}]',',') ~ ',boundary,administrative,')
+WHERE
+  way && !bbox!
+  AND boundary='administrative'
+  AND admin_level IS NOT NULL
+GROUP BY 1,2,3
+ORDER BY to_int(admin_level) DESC, 4
+
 
 
 -- motorway_label
